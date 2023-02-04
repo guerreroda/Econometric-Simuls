@@ -12,6 +12,8 @@ The Sharp RD estimates are unbiased. The FRD design yields an unbiased LATE.
 
 The file RD Simulation.do produces the coefficient in OLS, IV, and RD for a sharp and fuzzy design. The output is a distribution of coefficients as shown below:
 
+![image](https://github.com/guerreroda/RegressionDiscontinuity/blob/main/RD_Simulation.png)
+
 ## Simulation of Placebo Test
 
 The RD estimator typically uses a cutoff-placebo test as robutsness.
