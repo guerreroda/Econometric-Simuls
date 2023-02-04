@@ -25,3 +25,6 @@ In a sharp design, researchers calculate the correlation between the running var
 In a fuzzy framework, there are treated units below the cutoff and non-treated units above the cutoff. Because the cutoff changes the probability of treatment, and not the actual assignment to treatment, the coefficients calculated with placebo cutoffs are not systematically smaller than the true cutoff.
 
 This code performs the placebo test in the cutoff for a sharp and fuzzy design. The output for a simulation is below:
+
+
+<img src=https://github.com/guerreroda/RegressionDiscontinuity/blob/main/RD_Placebo.png" width="50%" height="50%">
