@@ -1,11 +1,23 @@
+
+	*****************************************
+	*****************************************
+	*****************************************
+	*****************************************
+	*****************************************
+	*****************************************
+	
+	* Placebo Test
+	* Simulate the placebo cutoff test in FRD and SRD.
+
+
 clear
-local Simulations 5000
-local N 4000
-set seed 100
+local Simulations 1000
+local N 5000
+set seed 1
 
 	* Placebo Cutoff Range
-	local placebo_min = 20
-	local placebo_max = 60
+	local placebo_min = 30
+	local placebo_max = 50
 	* cutoff
 	local C = 40
 	* bandwidth
@@ -24,14 +36,14 @@ set seed 100
 	save `Base' , replace
 
 forvalues s=1(1)`Simulations' {
-		
+	di "Simulation `s'"
 	clear
 	set obs `N'
 
 	*****************************************
 	*****************************************
 	* Fuzzy DGP
-
+	
 	cap drop X
 	gen X = round(runiform(10,80))
 
@@ -40,12 +52,12 @@ forvalues s=1(1)`Simulations' {
 
 	cap drop Treat
 	gen Treat = 0
-	replace Treat = 1 if Assignment>1.6 & X<`C'
-	replace Treat = 1 if Assignment>0.7 & X>=`C'
+	replace Treat = 1 if Assignment>1.6 & X < `C'
+	replace Treat = 1 if Assignment>0.7 & X >= `C'
 
 	cap drop cutoff
 	gen cutoff= X>=`C'
-	bysort cutoff: sum Treat
+	*bysort cutoff: sum Treat
 
 	* Error term
 	cap drop Mu
@@ -54,14 +66,14 @@ forvalues s=1(1)`Simulations' {
 	* Unobservables and Treatment are correlated.
 	cap drop Unobs
 	gen Unobs = rnormal(0,1) + 2.1*Treat
-	corr Unobs Treat
+	* corr Unobs Treat
 
 	cap drop distance
 	gen distance = X - `C'
 
 	* Variables near the cutoff are identical except in the treatment
 	cap drop y
-	gen y = 4 + `delta'Treat + Mu if abs(distance)<(`B'+1)
+	gen y = 4 + `delta'*Treat + Mu if abs(distance)<(`B'+1)
 	replace y = 4 + `delta'*Treat + 0.1*Unobs + Mu if abs(distance)>`B'
 	
 	*****************************************
@@ -121,7 +133,7 @@ forvalues s=1(1)`Simulations' {
 	gen Treat = (X>=`C')
 	cap drop cutoff
 	gen cutoff= X>=`C'
-	bysort cutoff: sum Treat
+	*bysort cutoff: sum Treat
 
 	* Error term
 	cap drop Mu
@@ -146,7 +158,7 @@ forvalues s=1(1)`Simulations' {
 
 	forvalues i=`placebo_min'(1)`placebo_max'{
 		di "cutoff: `i'"
-		qui rdrobust y X  , c( `i' ) p(1) fuzzy(Treat) kernel(uni) h(`B')
+		qui rdrobust y X  , c( `i' ) p(1) kernel(uni) h(`B')
 		
 		local beta_`i' =  e(tau_cl)
 		local left_`i'  = e(ci_l_cl)
@@ -188,21 +200,37 @@ forvalues s=1(1)`Simulations' {
 clear
 use `Base' , replace
 
+save simulations, replace
+
+
+use simulations, replace
+
 	
 	gen significant = (left>0) | (right<0)
 	sum significant
 
+drop if abs(right)>100 | abs(left)>100
+* keep if Simulation == 1
+*collapse (mean) beta left right significant, by(cutoff FRD)
+	* cutoff
+	local C = 40
+	* bandwidth
+	local B = 10
+	* Effect
+	local delta = 1.5
+	
+	local le yline(0 , lpattern(solid) ) xline(`C', lpattern(dash) lcolor(black)) graphregion(color(white)) scheme(s2mono) leg(off)
 
 preserve
 keep if FRD==1
-drop if abs(right)>100 | abs(left)>100
-twoway (scatter beta cutoff if significant==0, msymbol(diamond) mcolor(black) ) (scatter beta cutoff if significant==1, msymbol(diamond) mcolor(red) ) (rcap right left cutoff ), yline(0 , lpattern(solid) ) xline(`C', lpattern(dash) lcolor(black)) graphregion(color(white)) scheme(s2mono) leg(off) name(FRD, replace) title("Fuzzy RD")
+
+twoway (scatter beta cutoff if significant==0, msymbol(diamond) mcolor(black) ) (scatter beta cutoff if significant==1, msymbol(diamond) mcolor(red) )  (rcap right left cutoff ) , name(FRD, replace) title("Fuzzy RD") `le'
 restore
 
 preserve
 keep if FRD==0
-drop if abs(right)>100 | abs(left)>100
-twoway (scatter beta cutoff if significant==0, msymbol(diamond) mcolor(black) ) (scatter beta cutoff if significant==1, msymbol(diamond) mcolor(red) ) (rcap right left cutoff ), yline(0 , lpattern(solid) ) xline(`C', lpattern(dash) lcolor(black)) graphregion(color(white)) scheme(s2mono) leg(off) name(SRD, replace) title("Sharp RD")
+
+twoway (scatter beta cutoff if significant==0, msymbol(diamond) mcolor(black) ) (scatter beta cutoff if significant==1, msymbol(diamond) mcolor(red) )  (rcap right left cutoff ), name(SRD, replace) title("Sharp RD") `le'
 restore
 
 
