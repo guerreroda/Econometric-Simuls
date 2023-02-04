@@ -215,5 +215,5 @@ local con if frd==1
 twoway (kdensity beta_ols `con', lpattern(solid)) (kdensity beta_iv `con', lpattern(dot))  (kdensity beta_rd `con' , lpattern(dash)) , title("Fuzzy DGP") name(frd, replace) `le'
 
 grc1leg srd frd, graphregion(color(white)) scheme(s2mono) l1("Density", size(small))
-.legend.Edit, style(cols(3)) style(rows(0)) keepstyles
+gr_edit .legend.Edit, style(cols(3)) style(rows(0)) keepstyles
 
