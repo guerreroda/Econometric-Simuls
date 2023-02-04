@@ -27,4 +27,4 @@ In a fuzzy framework, there are treated units below the cutoff and non-treated u
 This code performs the placebo test in the cutoff for a sharp and fuzzy design. The output for a simulation is below:
 
 
-<img src=https://github.com/guerreroda/RegressionDiscontinuity/blob/main/RD_Placebo.png" width="50%" height="50%">
+<img src="https://github.com/guerreroda/RegressionDiscontinuity/blob/main/RD_Placebo.png" width="50%" height="50%">
