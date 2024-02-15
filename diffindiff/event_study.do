@@ -51,7 +51,7 @@ reg Y treatment##_Post , r
 
 
 * Event Study: Method 1
-eststo event : reg Y ib2005.year##treat i.id , r
+eststo event : reg Y ib2005.year##treat i.id i.year , r
 
 forvalues x = 2001(1)2010 {
 	local mylabel = "`mylabel' " + "`x'.year#1.treatment = `x'"
