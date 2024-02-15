@@ -1,5 +1,13 @@
+********************************************************************************
+********************************************************************************
 * EVENT STUDY SIMULATION
+* 02/15/2024
 
+
+
+********************************************************************************
+********************************************************************************
+* PART 1. Simulate Data Generating Process
 clear
 set seed 10
 
@@ -34,32 +42,51 @@ keep id year treatment
 
 gen mu = rnormal(0,1)
 gen Y = 10 + 2.5 * treatment * (year>2005) + mu
-* NOTE: DYNAMIC Treatment: You can add heterogeneous treatment effects using:
-* gen Y = 10 + 2.5 * treatment * (year>2005) * ((year - 2005)*0.2) + mu
-
 drop mu 
+********************************************************************************
+* 		NOTE 
+* DYNAMIC TREATMENT EFFECTS: add dynamic treatment effects using:
+* gen Y = 10 + 2.5 * treatment * (year>2005) * ((year - 2005)*0.2) + mu
+********************************************************************************
 
-sum Y 
-bysort treatment : sum Y 
-sum Y if year<2006
-sum Y if year>2005
 
+********************************************************************************
+********************************************************************************
+* DIFFERENCE IN DIFFERENCE
 
-* Simple Difference in Difference
 cap gen _Post = year>2005
 reg Y treatment##_Post , r
 
 
+
+********************************************************************************
+********************************************************************************
 * Event Study: Method 1
+* The method uses the year variable interacted with treatment.
+
 eststo event : reg Y ib2005.year##treat i.id i.year , r
 
-forvalues x = 2001(1)2010 {
+* Generate coeflabels in a loop
+qui sum year 
+forvalues x = `r(min)'(1)`r(max)' {
 	local mylabel = "`mylabel' " + "`x'.year#1.treatment = `x'"
 }
+
+* PLOT
 coefplot event , keep( *.year#1.treatment ) vertical omitted baselevels label yline(0) name(event1, replace) coeflabels(  `mylabel' )
 
+********************************************************************************
+********************************************************************************
+* Cute event study plot.
+* coefplot event , keep( *.year#1.treatment ) vertical omitted baselevels label yline(0) name(event1, replace) coeflabels(  `mylabel' ) recast(connect) msymbol(D) mcolor(black) lcolor(black) ciopts(recast(rarea) fcolor(gray%40) lcolor(gray%0))
 
+
+
+********************************************************************************
+********************************************************************************
 * Event Study: Method 2
+* The method uses time dummies with lags and leads plus a reference point.
+
 cap drop _lag* _lead* ref 
 levelsof year , local(Years)
 local c = 0 
@@ -84,4 +111,8 @@ label variable ref "2005"
 eststo event2 : reg Y _lag* ref _lead* i.id i.year , r
 coefplot event2 , keep( _lag* ref _lead* ) vertical omitted baselevels label yline(0) name(event2, replace)
 
+
+********************************************************************************
+********************************************************************************
+* COMPARE
 graph combine event1 event2 , ycomm xcomm
