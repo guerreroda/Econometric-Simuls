@@ -12,7 +12,7 @@ The Sharp RD estimates are unbiased. The FRD design yields an unbiased LATE.
 
 The file RD Simulation.do produces the coefficient in OLS, IV, and RD for a sharp and fuzzy design. The output is a distribution of coefficients as shown below:
 
-<img src="https://github.com/guerreroda/RegressionDiscontinuity/blob/main/RD_Simulation.png" width="50%" height="50%">
+<img src="https://github.com/guerreroda/RegressionDiscontinuity/blob/main/frd/RD_Simulation.png" width="50%" height="50%">
 
 The red vertical line is the true coefficient.
 
@@ -27,4 +27,4 @@ In a fuzzy framework, there are treated units below the cutoff and non-treated u
 This code performs the placebo test in the cutoff for a sharp and fuzzy design. The output for a simulation is below:
 
 
-<img src="https://github.com/guerreroda/RegressionDiscontinuity/blob/main/RD_Placebo.png" width="50%" height="50%">
+<img src="https://github.com/guerreroda/RegressionDiscontinuity/blob/main/frd/RD_Placebo.png" width="50%" height="50%">
